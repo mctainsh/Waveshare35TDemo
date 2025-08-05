@@ -20,10 +20,9 @@
 // 	5) Replace the line:
 // 			#include "../../src/draw/lv_draw_triangle.h"
 // 		with:
-// 			#include "../../../src/draw/lv_draw_triangle.h" 
+// 			#include "../../../src/draw/lv_draw_triangle.h"
 
-// #include <examples/lv_examples.h>
-// #include <demos/lv_demos.h>
+//#define LANDSCAPE_MODE // Uncomment to enable landscape mode (default is portrait mode)
 
 #define DIRECT_RENDER_MODE // Uncomment to enable full frame buffer
 
@@ -73,7 +72,9 @@ uint32_t millis_cb(void)
 	return millis();
 }
 
-/* LVGL calls it when a rendered image needs to copied to the display*/
+///////////////////////////////////////////////////////////////////////////////
+// LVGL calls it when a rendered image needs to copied to the display
+// .. only used when not rotated (Portrait mode)
 void my_disp_flush(lv_display_t *disp, const lv_area_t *area, uint8_t *px_map)
 {
 	uint32_t w = lv_area_get_width(area);
@@ -84,31 +85,31 @@ void my_disp_flush(lv_display_t *disp, const lv_area_t *area, uint8_t *px_map)
 	/*Call it to tell LVGL you are ready*/
 	lv_disp_flush_ready(disp);
 }
-lv_color16_t* pRotatedBuf = nullptr; // Buffer for rotated image
-void rotated_flush_cb(lv_display_t * disp, const lv_area_t * area, uint8_t * px_map) 
+
+///////////////////////////////////////////////////////////////////////////////
+// Buffer for rotated image (Landscape mode)
+// This buffer is used to store the rotated image before sending it to the display
+// It is allocated dynamically to fit the size of the image being rotated
+lv_color16_t *pRotatedBuf = nullptr; // Buffer for rotated image
+void rotated_flush_cb(lv_display_t *disp, const lv_area_t *area, uint8_t *px_map)
 {
-    const uint16_t w = lv_area_get_width(area);
-    const uint16_t h = lv_area_get_height(area);
+	const uint16_t w = lv_area_get_width(area);
+	const uint16_t h = lv_area_get_height(area);
 
-	if( pRotatedBuf == nullptr )
-    	pRotatedBuf = new lv_color16_t[h * w]; // Adjust size!
+	if (pRotatedBuf == nullptr)
+		pRotatedBuf = new lv_color16_t[h * w]; // Adjust size!
 
-    lv_color16_t *src = (lv_color16_t *)px_map;
-    lv_color16_t *dst = pRotatedBuf;
+	lv_color16_t *src = (lv_color16_t *)px_map;
+	lv_color16_t *dst = pRotatedBuf;
 
-    for (uint16_t y = 0; y < h; y++) {
-        for (uint16_t x = 0; x < w; x++) {
-            dst[x * h + (h - y - 1)] = src[y * w + x]; // 90° clockwise
-        }
-    }
+	for (uint16_t y = 0; y < h; y++)
+		for (uint16_t x = 0; x < w; x++)
+			dst[x * h + (h - y - 1)] = src[y * w + x]; // 90° clockwise
 
-    // Send rotated_buf to your display here
-   gfx->draw16bitRGBBitmap(area->x1, area->y1, (uint16_t *)dst, h, w);
+	// Send rotated_buf to your display here
+	gfx->draw16bitRGBBitmap(area->x1, area->y1, (uint16_t *)dst, h, w);
 
-    lv_display_flush_ready(disp);
-
-	//delete [] rotated_buf; // Free the rotated buffer
-	//rotated_buf = nullptr; // Avoid dangling pointer
+	lv_display_flush_ready(disp);
 }
 
 /*Read the touchpad*/
@@ -176,8 +177,8 @@ void setup()
 
 	screenWidth = gfx->width();
 	screenHeight = gfx->height();
-	//screenWidth = gfx->height();
-	//screenHeight = gfx->width();
+	// screenWidth = gfx->height();
+	// screenHeight = gfx->width();
 
 #ifdef DIRECT_RENDER_MODE
 	bufSize = screenWidth * screenHeight;
@@ -194,10 +195,17 @@ void setup()
 	}
 	else
 	{
+
+
+#ifdef LANDSCAPE_MODE
 		disp = lv_display_create(screenWidth, screenHeight);
-		lv_display_set_rotation(disp, LV_DISPLAY_ROTATION_270); // Options: 0, 90, 180, 270
-		//lv_display_set_flush_cb(disp, my_disp_flush);
-		lv_display_set_flush_cb(disp, rotated_flush_cb); // Use this for rotation support
+		lv_display_set_rotation(disp, LV_DISPLAY_ROTATION_270); // Used to rotate touch screen
+		lv_display_set_flush_cb(disp, rotated_flush_cb);		// Use this for rotation support
+#else
+		disp = lv_display_create(screenHeight, screenWidth);
+		lv_display_set_flush_cb(disp, my_disp_flush);
+#endif
+
 #ifdef DIRECT_RENDER_MODE
 		lv_display_set_buffers(disp, disp_draw_buf1, disp_draw_buf2, bufSize * 2, LV_DISPLAY_RENDER_MODE_FULL);
 #else
@@ -209,20 +217,12 @@ void setup()
 		lv_indev_set_type(indev, LV_INDEV_TYPE_POINTER); /*Touchpad should have POINTER type*/
 		lv_indev_set_read_cb(indev, my_touchpad_read);
 
-
-
-
-
-// lv_obj_t * tex = lv_3dtexture_create(parent);
-// /* Render something to the texture. You can replace it with your code. */
-// lv_3dtexture_id_t gltf_texture = render_gltf_model_to_opengl_texture(path, screenWidth, screenHeight, color);
-// lv_3dtexture_set_src(tex, gltf_texture);
-// lv_obj_set_size(tex, screenWidth, screenHeight);
-// lv_obj_set_style_opa(tex, opa, 0);
-
-
-
-
+		// lv_obj_t * tex = lv_3dtexture_create(parent);
+		// /* Render something to the texture. You can replace it with your code. */
+		// lv_3dtexture_id_t gltf_texture = render_gltf_model_to_opengl_texture(path, screenWidth, screenHeight, color);
+		// lv_3dtexture_set_src(tex, gltf_texture);
+		// lv_obj_set_size(tex, screenWidth, screenHeight);
+		// lv_obj_set_style_opa(tex, opa, 0);
 
 		/* Option 1: Create a simple label
 		 * ---------------------
@@ -251,7 +251,7 @@ void setup()
 		// lv_demo_benchmark();
 		// lv_demo_keypad_encoder();
 		// lv_demo_music();
-		//lv_demo_stress();
+		// lv_demo_stress();
 	}
 
 	Serial.println("Setup done");
