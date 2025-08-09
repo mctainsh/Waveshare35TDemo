@@ -1,5 +1,10 @@
 # Waveshare35TDemo
-Demo of the Waveshare 3.5" touch screen device
+Demo of the Waveshare 3.5" touch screen device. This demo allow you to 
+access all the LVGL demos and includes a flag to change the device orientation to landscape.
+
+You can buy it with my referral link: [Waveshare 3.5" Touch Screen](https://www.waveshare.com/esp32-s3-touch-lcd-3.5b.htm?&aff_id=117711)
+
+<img src="https://www.waveshare.com/media/catalog/product/cache/1/image/560x560/9df78eab33525d08d6e5fb8d27136e95/e/s/esp32-s3-touch-lcd-3.5b-1.jpg" width="400" style="margin:-50px;">
 
 ## LVGL Setup Instructions
 
@@ -27,4 +32,12 @@ To use the built-in examples and demos of LVGL;
 ## Configuration Options
 
 Uncomment `LANDSCAPE_MODE` to enable landscape mode (default is portrait mode)
+
+## Pin outs
+
+<img src="https://www.waveshare.com/img/devkit/ESP32-S3-Touch-LCD-3.5B/ESP32-S3-Touch-LCD-3.5B-details-intro.jpg" width="400">
+
+
+
+
 

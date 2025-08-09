@@ -22,7 +22,7 @@
 // 		with:
 // 			#include "../../../src/draw/lv_draw_triangle.h"
 
-//#define LANDSCAPE_MODE // Uncomment to enable landscape mode (default is portrait mode)
+#define LANDSCAPE_MODE // Uncomment to enable landscape mode (default is portrait mode)
 
 #define DIRECT_RENDER_MODE // Uncomment to enable full frame buffer
 
@@ -216,13 +216,6 @@ void setup()
 		lv_indev_t *indev = lv_indev_create();
 		lv_indev_set_type(indev, LV_INDEV_TYPE_POINTER); /*Touchpad should have POINTER type*/
 		lv_indev_set_read_cb(indev, my_touchpad_read);
-
-		// lv_obj_t * tex = lv_3dtexture_create(parent);
-		// /* Render something to the texture. You can replace it with your code. */
-		// lv_3dtexture_id_t gltf_texture = render_gltf_model_to_opengl_texture(path, screenWidth, screenHeight, color);
-		// lv_3dtexture_set_src(tex, gltf_texture);
-		// lv_obj_set_size(tex, screenWidth, screenHeight);
-		// lv_obj_set_style_opa(tex, opa, 0);
 
 		/* Option 1: Create a simple label
 		 * ---------------------
